@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game WebApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #050505;
+            color: #fff;
+            touch-action: none;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            margin: 0 auto;
+            padding: 16px;
+            background: linear-gradient(45deg, #0d0d0d, #1a1a1a);
+        }
+
+        .nav-bar {
+            width: 100%;
+            background: rgba(25, 25, 25, 0.9);
+            padding: 12px;
+            margin-bottom: 16px;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            font-size: 14px;
+            color: #bbbbbb;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 10px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 12px 0;
+            border-top: 2px solid rgba(100, 100, 100, 0.2);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #888;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item img {
+            width: 22px;
+            height: 22px;
+            margin-bottom: 4px;
+            filter: brightness(0) invert(1);
+            pointer-events: none; /* Это запрещает клики на изображениях */
+        }
+
+        .nav-text {
+            font-size: 12px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item:hover .nav-text {
+            color: #b38ef5;
+        }
+
+        .nav-item.active {
+            color: #685cff;
+            text-shadow: 0 0 8px rgba(104, 78, 255, 0.3);
+        }
+
+        .nav-item a {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-bar">
+            ВЫБЕРИТЕ ИГРУ
+        </div>
+    </div>
+
+    <div class="navigation">
+        <div class="nav-item" id="leadersTab">
+            <a>
+                <img src="https://i.postimg.cc/XNcpRsK6/free-icon-leaderboard-7132143.png" alt="Лидеры">
+            </a>
+            <div class="nav-text">Лидеры</div>
+        </div>
+        <div class="nav-item active" id="mainTab">
+            <a>
+                <img src="https://i.postimg.cc/Bnw8htT8/free-icon-home-7102764.png" alt="Главная">
+            </a>
+            <div class="nav-text">Главная</div>
+        </div>
+        <div class="nav-item" id="profileTab">
+            <a>
+                <img src="https://i.postimg.cc/Jzt0BmfR/free-icon-profile-3106773.png" alt="Профиль">
+            </a>
+            <div class="nav-text">Профиль</div>
+        </div>
+    </div>
+
+    <script>
+        // Запрещаем перетаскивание изображений в навигационных элементах
+        document.querySelectorAll('.nav-item img').forEach(img => {
+            img.ondragstart = (event) => event.preventDefault();
+        });
+    </script>
+</body>
+</html>
