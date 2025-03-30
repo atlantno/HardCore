@@ -88,9 +88,9 @@
         }
 
         function initializeApp() {
-            // Проверяем, была ли уже загрузка
             if (localStorage.getItem('appLoaded') === 'true') {
                 hideLoader();
+                userData = JSON.parse(localStorage.getItem('userData')) || {};
                 return;
             }
 
@@ -131,7 +131,7 @@
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', () => {
-                if (item.classList.contains('active') || item.classList.contains('disabled')) return;
+                if (item.classList.contains('active')) return;
 
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
@@ -139,18 +139,11 @@
                 mainContent.classList.add('fade-out');
                 setTimeout(() => {
                     if (item.id === 'profileTab') {
-                        const profileUrl = new URL('https://atlantno.github.io/HardCore/profile.html');
-                        if (userData) {
-                            profileUrl.searchParams.set('username', userData.username || '@Player');
-                            profileUrl.searchParams.set('photo', userData.photo_url || '');
-                        }
-                        window.location.href = profileUrl.toString();
-                    } else if (item.id === 'mainTab') {
-                        window.location.reload(); // Уже на главной, но для демонстрации
+                        window.location.href = 'https://atlantno.github.io/HardCore/profile.html';
                     }
                 }, 300);
             });
         });
     </script>
 </body>
-</html>
+</html>s
