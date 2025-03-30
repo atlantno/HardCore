@@ -3,35 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Профиль</title>
+    <title>Профиль игрока</title>
     <style>
         * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-user-select:none;user-select:none;}
         html,body {height:100%;overflow:hidden;background:#0a0a1a;color:#fff;touch-action:none;}
-        .container {display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:480px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#0a0a1a,#1e1e3a);opacity:0;transition:opacity 0.5s ease-in;}
+        .container {display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:480px;margin:0 auto;padding:15px;background:linear-gradient(180deg,#0a0a1a,#1e1e3a);opacity:0;transition:opacity 0.5s ease-in;}
         .container.visible {opacity:1;}
-        .nav-bar {width:100%;background:rgba(20,20,40,0.9);padding:12px;margin-bottom:24px;border-radius:16px;text-align:center;font-size:16px;font-weight:600;color:#e0e0e0;letter-spacing:0.5px;box-shadow:0 4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);}
-        .profile-container {flex:1;display:flex;flex-direction:column;align-items:center;padding-bottom:80px;}
-        .profile-photo {width:100px;height:100px;border-radius:50%;background:#7c3aed;margin-bottom:20px;object-fit:cover;}
-        .profile-username {font-size:24px;font-weight:600;color:#7c3aed;margin-bottom:10px;}
-        .profile-info {color:#a0a0c0;font-size:14px;text-align:center;}
-        .navigation {position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,15,30,0.95);padding:12px 0;border-top:1px solid rgba(124,58,237,0.1);box-shadow:0 -4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);transition:transform 0.3s ease;}
+        .profile-header {width:100%;background:rgba(20,20,40,0.9);padding:15px;border-radius:12px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.25);backdrop-filter:blur(12px);position:relative;overflow:hidden;}
+        .profile-header::before {content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 70%);opacity: different0.5;}
+        .avatar {width:80px;height:80px;border-radius:50%;margin:0 auto 12px;border:2px solid #7c3aed;box-shadow:0 0 12px rgba(124,58,237,0.4);background:url('https://i.postimg.cc/Jzt0BmfR/free-icon-profile-3106773.png') center/cover;}
+        .player-tag {font-size:20px;font-weight:700;background:linear-gradient(90deg,#7c3aed,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:10px;text-shadow:0 0 5px rgba(124,58,237,0.3);}
+        .balance {position:absolute;top:15px;right:10px;background:linear-gradient(135deg,rgba(30,30,60,0.95),rgba(20,20,40,0.9));border-radius:20px;padding:6px 12px;font-size:14px;font-weight:600;color:#7c3aed;border:1px solid rgba(124,58,237,0.25);box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+        .stats-container {display:flex;justify-content:space-between;gap:10px;margin-top:15px;}
+        .stat-card {flex:1;background:linear-gradient(135deg,rgba(30,30,60,0.95),rgba(20,20,40,0.9));border-radius:10px;padding:10px;text-align:center;border:1px solid rgba(124,58,237,0.25);box-shadow:0 3px 12px rgba(0,0,0,0.2);transition:all 0.3s ease;}
+        .stat-card.followers {background:linear-gradient(135deg,rgba(40,40,80,0.95),rgba(30,30,60,0.9));border:1px solid rgba(219,39,119,0.3);box-shadow:0 4px 15px rgba(219,39,119,0.2);}
+        .stat-value {font-size:18px;font-weight:600;color:#7c3aed;margin-bottom:3px;}
+        .stat-card.followers .stat-value {color:#db2777;}
+        .stat-label {font-size:10px;color:#a0a0c0;text-transform:uppercase;letter-spacing:0.5px;}
+        .navigation {position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,15,30,0.95);padding:10px 0;border-top:1px solid rgba(124,58,237,0.1);box-shadow:0 -3px 12px rgba(0,0,0,0.25);backdrop-filter:blur(10px);}
         .nav-item {display:flex;flex-direction:column;align-items:center;color:#a0a0c0;transition:all 0.3s ease;cursor:pointer;}
-        .nav-item.disabled {cursor:not-allowed;opacity:0.5;}
-        .nav-item img {width:26px;height:26px;margin-bottom:4px;filter:brightness(0) invert(0.7);transition:all 0.3s ease;}
-        .nav-text {font-size:12px;font-weight:500;}
-        .nav-item.active {color:#7c3aed;}
-        .nav-item.active img {filter:brightness(0) invert(1) drop-shadow(0 0 4px #7c3aed);}
+        .nav-item img {width:22px;height:22px;margin-bottom:3px;filter:brightness(0) invert(0.7);transition:all 0.3s ease;}
+        .nav-text {font-size:10px;font-weight:500;}
+        .nav-item:hover {color:#db2777;}
+        .nav-item:hover img {transform:scale(1.1);filter:brightness(0) invert(1) drop-shadow(0 0 3px #db2777);}
+        .nav-item.active {color:#7c3aed;text-shadow:0 0 4px rgba(124,58,237,0.4);}
+        .nav-item.active img {filter:brightness(0) invert(1) drop-shadow(0 0 3px #7c3aed);}
         .fade-out {animation:fadeOut 0.3s ease forwards;}
         @keyframes fadeOut {from{opacity:1;}to{opacity:0;}}
     </style>
 </head>
 <body>
     <div class="container" id="mainContent">
-        <div class="nav-bar">Профиль</div>
-        <div class="profile-container">
-            <img class="profile-photo" id="profilePhoto" src="" alt="Фото профиля"/>
-            <div class="profile-username" id="profileUsername"></div>
-            <div class="profile-info">Добро пожаловать в ваш профиль!</div>
+        <div class="profile-header">
+            <div class="balance" id="balance">Баланс: 0$</div>
+            <div class="avatar" id="avatar"></div>
+            <div class="player-tag" id="playerTag">@Player123</div>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="subscriptions">0</div>
+                    <div class="stat-label">Подписки</div>
+                </div>
+                <div class="stat-card followers">
+                    <div class="stat-value" id="followers">0</div>
+                    <div class="stat-label">Подписчики</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="likes">0</div>
+                    <div class="stat-label">Лайки</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -52,17 +72,25 @@
 
     <script>
         const mainContent = document.getElementById('mainContent');
-        const profilePhoto = document.getElementById('profilePhoto');
-        const profileUsername = document.getElementById('profileUsername');
+        const avatar = document.getElementById('avatar');
+        const playerTag = document.getElementById('playerTag');
+        const balance = document.getElementById('balance');
+        const subscriptions = document.getElementById('subscriptions');
+        const followers = document.getElementById('followers');
+        const likes = document.getElementById('likes');
 
         function initializeProfile() {
+            const userData = JSON.parse(localStorage.getItem('userData')) || {};
+            const defaultPhoto = 'https://i.postimg.cc/Jzt0BmfR/free-icon-profile-3106773.png';
+
+            playerTag.textContent = userData.username ? `@${userData.username}` : '@Player123';
+            avatar.style.background = `url('${userData.photo_url || defaultPhoto}') center/cover`;
+            balance.textContent = 'Баланс: 0$'; // Здесь можно добавить реальные данные, если они есть
+            subscriptions.textContent = '0'; // Пример статистики
+            followers.textContent = '0'; // Пример статистики
+            likes.textContent = '0'; // Пример статистики
+
             mainContent.classList.add('visible');
-            const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('username') || '@Player';
-            const photo = urlParams.get('photo') || 'https://i.postimg.cc/Jzt0BmfR/free-icon-profile-3106773.png'; // Заглушка
-            
-            profileUsername.textContent = username;
-            profilePhoto.src = photo;
         }
 
         document.querySelectorAll('img').forEach(img => {
@@ -74,7 +102,7 @@
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', () => {
-                if (item.classList.contains('active') || item.classList.contains('disabled')) return;
+                if (item.classList.contains('active')) return;
 
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
