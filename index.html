@@ -6,6 +6,7 @@
     <title>Game WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* Оставляем стили без изменений */
         * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-user-select:none;user-select:none;}
         html,body {height:100%;overflow:hidden;background:#0a0a1a;color:#fff;touch-action:none;}
         .loader-container {position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a1a;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:1000;opacity:1;transition:opacity 0.5s ease-out;}
@@ -88,12 +89,7 @@
         }
 
         function initializeApp() {
-            if (localStorage.getItem('appLoaded') === 'true') {
-                hideLoader();
-                userData = JSON.parse(localStorage.getItem('userData')) || {};
-                return;
-            }
-
+            // Всегда показываем загрузку
             if (window.Telegram && window.Telegram.WebApp) {
                 try {
                     window.Telegram.WebApp.ready(() => {
@@ -101,7 +97,6 @@
                         localStorage.setItem('userData', JSON.stringify(userData));
                         setTimeout(() => {
                             hideLoader();
-                            localStorage.setItem('appLoaded', 'true');
                         }, 1500);
                     });
                 } catch (e) {
@@ -112,14 +107,6 @@
                 showError('Ошибка: Telegram WebApp недоступен');
                 setTimeout(hideLoader, 3000);
             }
-
-            setTimeout(() => {
-                if (!loader.classList.contains('hidden')) {
-                    showError('Загрузка принудительно завершена');
-                    hideLoader();
-                    localStorage.setItem('appLoaded', 'true');
-                }
-            }, 5000);
         }
 
         document.querySelectorAll('img').forEach(img => {
@@ -139,7 +126,9 @@
                 mainContent.classList.add('fade-out');
                 setTimeout(() => {
                     if (item.id === 'profileTab') {
-                        window.location.href = 'https://atlantno.github.io/HardCore/profile.html';
+                        // Передаем userData через URL-параметр
+                        const userDataString = encodeURIComponent(JSON.stringify(userData));
+                        window.location.href = `https://atlantno.github.io/HardCore/profile.html?userData=${userDataString}`;
                     }
                 }, 300);
             });
