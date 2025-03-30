@@ -24,12 +24,15 @@
         .card:hover img {transform:scale(1.08);}
         .card-title {color:#7c3aed;font-size:14px;font-weight:600;margin-top:12px;text-transform:uppercase;letter-spacing:0.5px;}
         .card-description {color:#a0a0c0;font-size:11px;text-align:center;margin-top:6px;line-height:1.3;}
-        .navigation {position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,15,30,0.95);padding:12px 0;border-top:1px solid rgba(124,58,237,0.1);box-shadow:0 -4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);}
+        .navigation {position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,15,30,0.95);padding:12px 0;border-top:1px solid rgba(124,58,237,0.1);box-shadow:0 -4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);transition:transform 0.3s ease;}
         .nav-item {display:flex;flex-direction:column;align-items:center;color:#a0a0c0;transition:all 0.3s ease;cursor:pointer;}
+        .nav-item.disabled {cursor:not-allowed;opacity:0.5;}
         .nav-item img {width:26px;height:26px;margin-bottom:4px;filter:brightness(0) invert(0.7);transition:all 0.3s ease;}
         .nav-text {font-size:12px;font-weight:500;}
         .nav-item.active {color:#7c3aed;}
         .nav-item.active img {filter:brightness(0) invert(1) drop-shadow(0 0 4px #7c3aed);}
+        .fade-out {animation:fadeOut 0.3s ease forwards;}
+        @keyframes fadeOut {from{opacity:1;}to{opacity:0;}}
     </style>
 </head>
 <body>
@@ -84,57 +87,68 @@
             loaderError.textContent = message;
         }
 
-        // Функция для проверки и завершения загрузки
         function initializeApp() {
+            // Проверяем, была ли уже загрузка
+            if (localStorage.getItem('appLoaded') === 'true') {
+                hideLoader();
+                return;
+            }
+
             if (window.Telegram && window.Telegram.WebApp) {
                 try {
                     window.Telegram.WebApp.ready(() => {
                         userData = window.Telegram.WebApp.initDataUnsafe.user || {};
-                        setTimeout(hideLoader, 1500); // Успешная загрузка через 1.5 сек
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                        setTimeout(() => {
+                            hideLoader();
+                            localStorage.setItem('appLoaded', 'true');
+                        }, 1500);
                     });
                 } catch (e) {
                     showError('Ошибка инициализации Telegram WebApp');
-                    setTimeout(hideLoader, 3000); // Скрываем через 3 сек при ошибке
+                    setTimeout(hideLoader, 3000);
                 }
             } else {
                 showError('Ошибка: Telegram WebApp недоступен');
-                setTimeout(hideLoader, 3000); // Скрываем через 3 сек, если Telegram недоступен
+                setTimeout(hideLoader, 3000);
             }
 
-            // Принудительное скрытие загрузки через 5 секунд в любом случае
             setTimeout(() => {
                 if (!loader.classList.contains('hidden')) {
                     showError('Загрузка принудительно завершена');
                     hideLoader();
+                    localStorage.setItem('appLoaded', 'true');
                 }
             }, 5000);
         }
 
-        // Отключаем перетаскивание изображений
         document.querySelectorAll('img').forEach(img => {
             img.ondragstart = (event) => event.preventDefault();
         });
 
-        // Запускаем инициализацию
         initializeApp();
 
-        // Навигация
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', () => {
+                if (item.classList.contains('active') || item.classList.contains('disabled')) return;
+
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
-                
-                if (item.id === 'profileTab') {
-                    const profileUrl = new URL('https://atlantno.github.io/HardCore/profile.html');
-                    if (userData) {
-                        profileUrl.searchParams.set('username', userData.username || '@Player');
-                        profileUrl.searchParams.set('photo', userData.photo_url || '');
+
+                mainContent.classList.add('fade-out');
+                setTimeout(() => {
+                    if (item.id === 'profileTab') {
+                        const profileUrl = new URL('https://atlantno.github.io/HardCore/profile.html');
+                        if (userData) {
+                            profileUrl.searchParams.set('username', userData.username || '@Player');
+                            profileUrl.searchParams.set('photo', userData.photo_url || '');
+                        }
+                        window.location.href = profileUrl.toString();
+                    } else if (item.id === 'mainTab') {
+                        window.location.reload(); // Уже на главной, но для демонстрации
                     }
-                    window.location.href = profileUrl.toString();
-                } else if (item.id === 'mainTab') {
-                    window.location.href = 'https://atlantno.github.io/HardCore/index.html';
-                }
+                }, 300);
             });
         });
     </script>
