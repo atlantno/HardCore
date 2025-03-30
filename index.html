@@ -13,40 +13,34 @@
         .loader-icon {width:80px;height:80px;margin-bottom:20px;animation:rotate 1.5s ease-in-out infinite;}
         @keyframes rotate {0%{transform:rotate(0deg) scale(1);}50%{transform:rotate(180deg) scale(1.03);}100%{transform:rotate(360deg) scale(1);}}
         .loader-text {font-size:24px;font-weight:600;background:linear-gradient(90deg,#7c3aed,#db2777);-webkit-background-clip:text;background-clip:text;color:transparent;}
-        .loader-dots {font-size:16px;color:#666;font-weight:700;position:fixed;bottom:80px;}
-        .loader-dots::after {content:"...";animation:dots 1.5s steps(4,end) infinite;}
-        @keyframes dots {0%,20%{content:".";}40%{content:"..";}60%{content:"...";}80%,100%{content:"";}}
+        .loader-error {font-size:16px;color:#ff4444;margin-top:10px;}
         .container {display:flex;flex-direction:column;min-height:100vh;width:100%;max-width:480px;margin:0 auto;padding:20px;background:linear-gradient(180deg,#0a0a1a,#1e1e3a);opacity:0;transition:opacity 0.5s ease-in;}
         .container.visible {opacity:1;}
         .nav-bar {width:100%;background:rgba(20,20,40,0.9);padding:12px;margin-bottom:24px;border-radius:16px;text-align:center;font-size:16px;font-weight:600;color:#e0e0e0;letter-spacing:0.5px;box-shadow:0 4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);}
         .cards-container {width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;padding-bottom:80px;}
-        .card {width:140px;height:140px;background:linear-gradient(135deg,rgba(30,30,60,0.95),rgba(20,20,40,0.9));border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.15);border:1px solid rgba(124,58,237,0.2);transition:all 0.3s ease;cursor:pointer;position:relative;overflow:hidden;}
-        .card::before {content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,58,237,0.2) 0%,transparent 70%);opacity:0;transition:opacity 0.3s ease;}
-        .card:hover::before {opacity:1;}
+        .card {width:140px;height:140px;background:linear-gradient(135deg,rgba(30,30,60,0.95),rgba(20,20,40,0.9));border-radius:16px;padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.15);border:1px solid rgba(124,58,237,0.2);transition:all 0.3s ease;cursor:pointer;}
         .card:hover {transform:translateY(-4px);box-shadow:0 8px 25px rgba(124,58,237,0.2);border-color:rgba(124,58,237,0.6);}
         .card img {width:40px;height:40px;filter:drop-shadow(0 0 4px rgba(124,58,237,0.5));transition:transform 0.3s ease;}
         .card:hover img {transform:scale(1.08);}
-        .card-title {color:#7c3aed;font-size:14px;font-weight:600;margin-top:12px;text-transform:uppercase;letter-spacing:0.5px;text-shadow:0 0 3px rgba(124,58,237,0.3);}
-        .card-description {color:#a0a0c0;font-size:11px;text-align:center;margin-top:6px;line-height:1.3;opacity:0.9;}
+        .card-title {color:#7c3aed;font-size:14px;font-weight:600;margin-top:12px;text-transform:uppercase;letter-spacing:0.5px;}
+        .card-description {color:#a0a0c0;font-size:11px;text-align:center;margin-top:6px;line-height:1.3;}
         .navigation {position:fixed;bottom:0;left:0;width:100%;display:flex;justify-content:space-around;background:rgba(15,15,30,0.95);padding:12px 0;border-top:1px solid rgba(124,58,237,0.1);box-shadow:0 -4px 15px rgba(0,0,0,0.2);backdrop-filter:blur(10px);}
         .nav-item {display:flex;flex-direction:column;align-items:center;color:#a0a0c0;transition:all 0.3s ease;cursor:pointer;}
         .nav-item img {width:26px;height:26px;margin-bottom:4px;filter:brightness(0) invert(0.7);transition:all 0.3s ease;}
-        .nav-text {font-size:12px;font-weight:500;transition:color 0.3s ease;}
-        .nav-item:hover {color:#db2777;}
-        .nav-item:hover img {transform:scale(1.1);filter:brightness(0) invert(1) drop-shadow(0 0 3px #db2777);}
-        .nav-item.active {color:#7c3aed;text-shadow:0 0 5px rgba(124,58,237,0.4);}
+        .nav-text {font-size:12px;font-weight:500;}
+        .nav-item.active {color:#7c3aed;}
         .nav-item.active img {filter:brightness(0) invert(1) drop-shadow(0 0 4px #7c3aed);}
     </style>
 </head>
 <body>
     <div class="loader-container" id="loader">
         <svg class="loader-icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <rect x="2" y="2" width="20" height="20" rx="2" ry="2" stroke="white"/>
-            <circle cx="12" cy="12" r="4" stroke="white"/>
-            <line x1="12" y1="8" x2="12" y2="4" stroke="white"/>
+            <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="12" y1="8" x2="12" y2="4"/>
         </svg>
         <div class="loader-text">Treasury</div>
-        <div class="loader-dots">Checking data</div>
+        <div class="loader-error" id="loaderError"></div>
     </div>
 
     <div class="container" id="mainContent">
@@ -77,25 +71,55 @@
 
     <script>
         let userData = null;
+        const loader = document.getElementById('loader');
+        const mainContent = document.getElementById('mainContent');
+        const loaderError = document.getElementById('loaderError');
 
-        window.Telegram.WebApp.ready(() => {
-            userData = window.Telegram.WebApp.initDataUnsafe.user || {};
-            const loader = document.getElementById('loader');
-            const mainContent = document.getElementById('mainContent');
-            
+        function hideLoader() {
+            loader.classList.add('hidden');
+            mainContent.classList.add('visible');
+        }
+
+        function showError(message) {
+            loaderError.textContent = message;
+        }
+
+        // Функция для проверки и завершения загрузки
+        function initializeApp() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                try {
+                    window.Telegram.WebApp.ready(() => {
+                        userData = window.Telegram.WebApp.initDataUnsafe.user || {};
+                        setTimeout(hideLoader, 1500); // Успешная загрузка через 1.5 сек
+                    });
+                } catch (e) {
+                    showError('Ошибка инициализации Telegram WebApp');
+                    setTimeout(hideLoader, 3000); // Скрываем через 3 сек при ошибке
+                }
+            } else {
+                showError('Ошибка: Telegram WebApp недоступен');
+                setTimeout(hideLoader, 3000); // Скрываем через 3 сек, если Telegram недоступен
+            }
+
+            // Принудительное скрытие загрузки через 5 секунд в любом случае
             setTimeout(() => {
-                loader.classList.add('hidden');
-                mainContent.classList.add('visible');
-            }, 1500);
-        });
+                if (!loader.classList.contains('hidden')) {
+                    showError('Загрузка принудительно завершена');
+                    hideLoader();
+                }
+            }, 5000);
+        }
 
-        document.querySelectorAll('.nav-item img, .card img').forEach(img => {
+        // Отключаем перетаскивание изображений
+        document.querySelectorAll('img').forEach(img => {
             img.ondragstart = (event) => event.preventDefault();
         });
 
-        const navItems = document.querySelectorAll('.nav-item');
-        const cards = document.querySelectorAll('.card');
+        // Запускаем инициализацию
+        initializeApp();
 
+        // Навигация
+        const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
             item.addEventListener('click', () => {
                 navItems.forEach(nav => nav.classList.remove('active'));
@@ -112,10 +136,6 @@
                     window.location.href = 'https://atlantno.github.io/HardCore/index.html';
                 }
             });
-        });
-
-        cards.forEach(card => {
-            card.addEventListener('click', () => {});
         });
     </script>
 </body>
