@@ -6,7 +6,6 @@
     <title>Game WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Оставляем стили без изменений */
         * {margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-user-select:none;user-select:none;}
         html,body {height:100%;overflow:hidden;background:#0a0a1a;color:#fff;touch-action:none;}
         .loader-container {position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a1a;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:1000;opacity:1;transition:opacity 0.5s ease-out;}
@@ -74,7 +73,7 @@
     </div>
 
     <script>
-        let userData = null;
+        let userData = {};
         const loader = document.getElementById('loader');
         const mainContent = document.getElementById('mainContent');
         const loaderError = document.getElementById('loaderError');
@@ -89,24 +88,45 @@
         }
 
         function initializeApp() {
-            // Всегда показываем загрузку
-            if (window.Telegram && window.Telegram.WebApp) {
-                try {
-                    window.Telegram.WebApp.ready(() => {
-                        userData = window.Telegram.WebApp.initDataUnsafe.user || {};
-                        localStorage.setItem('userData', JSON.stringify(userData));
-                        setTimeout(() => {
-                            hideLoader();
-                        }, 1500);
-                    });
-                } catch (e) {
-                    showError('Ошибка инициализации Telegram WebApp');
-                    setTimeout(hideLoader, 3000);
+            // Показываем загрузку минимум на 1.5 секунды
+            const minLoadingTime = new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Пытаемся получить данные Telegram
+            const telegramInit = new Promise(resolve => {
+                if (window.Telegram && window.Telegram.WebApp) {
+                    try {
+                        window.Telegram.WebApp.ready(() => {
+                            userData = window.Telegram.WebApp.initDataUnsafe.user || {};
+                            localStorage.setItem('userData', JSON.stringify(userData));
+                            resolve();
+                        });
+                    } catch (e) {
+                        showError('Ошибка инициализации Telegram WebApp');
+                        resolve();
+                    }
+                } else {
+                    showError('Telegram WebApp недоступен');
+                    resolve();
                 }
-            } else {
-                showError('Ошибка: Telegram WebApp недоступен');
-                setTimeout(hideLoader, 3000);
-            }
+            });
+
+            // Ждем оба промиса и скрываем загрузку
+            Promise.all([minLoadingTime, telegramInit])
+                .then(() => {
+                    hideLoader();
+                })
+                .catch(() => {
+                    showError('Ошибка загрузки');
+                    hideLoader();
+                });
+
+            // Принудительное завершение загрузки через 5 секунд
+            setTimeout(() => {
+                if (!loader.classList.contains('hidden')) {
+                    showError('Загрузка завершена принудительно');
+                    hideLoader();
+                }
+            }, 5000);
         }
 
         document.querySelectorAll('img').forEach(img => {
@@ -126,7 +146,6 @@
                 mainContent.classList.add('fade-out');
                 setTimeout(() => {
                     if (item.id === 'profileTab') {
-                        // Передаем userData через URL-параметр
                         const userDataString = encodeURIComponent(JSON.stringify(userData));
                         window.location.href = `https://atlantno.github.io/HardCore/profile.html?userData=${userDataString}`;
                     }
